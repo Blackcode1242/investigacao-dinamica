@@ -32,7 +32,12 @@ OBR.onReady(() => {
       }
 
       logStatus("Obtendo centro da tela...");
-      const viewport = await OBR.viewport.getCenter();
+      // CORREÇÃO APLICADA AQUI: Usando getBounds para calcular o centro corretamente
+      const bounds = await OBR.viewport.getBounds();
+      const viewport = {
+        x: (bounds.min.x + bounds.max.x) / 2,
+        y: (bounds.min.y + bounds.max.y) / 2
+      };
 
       logStatus("Enviando comando para criar item...");
       await OBR.scene.items.addItems([
