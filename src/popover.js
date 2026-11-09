@@ -4,18 +4,37 @@ import "./style.css";
 const BASE_URL = "https://blackcode1242.github.io/investigacao-dinamica";
 
 OBR.onReady(() => {
-  document.getElementById("app").innerHTML = `
-    <div style="padding: 12px; display: flex; flex-direction: column; gap: 10px;">
-      <h3 style="margin: 0 0 4px 0; font-size: 15px;">Investigação Dinâmica</h3>
+  const app = document.getElementById("app");
+  app.innerHTML = `
+    <div style="padding: 12px; display: flex; flex-direction: column; gap: 8px;">
+      <h3 style="margin: 0 0 2px 0; font-size: 15px;">Investigação Dinâmica</h3>
       <button class="primary" id="create-point" style="padding: 8px; cursor: pointer;">Criar Ponto no Centro</button>
+      <div id="status-log" style="font-size: 11px; color: #a1a1aa; word-break: break-all; margin-top: 4px;">Status: Aguardando ação...</div>
     </div>
   `;
 
+  const logStatus = (message, isError = false) => {
+    const logEl = document.getElementById("status-log");
+    if (logEl) {
+      logEl.style.color = isError ? "#f87171" : "#4ade80";
+      logEl.textContent = message;
+    }
+    console.log(message);
+  };
+
   document.getElementById("create-point").addEventListener("click", async () => {
     try {
-      const viewport = await OBR.viewport.getCenter();
-      const iconUrl = `${BASE_URL}/sparkle.webp`;
+      logStatus("Verificando se a cena está pronta...");
 
+      const sceneReady = await OBR.scene.isReady();
+      if (!sceneReady) {
+        throw new Error("A cena do Owlbear Rodeo não está pronta. Abra um mapa ativo.");
+      }
+
+      logStatus("Obtendo centro da tela...");
+      const viewport = await OBR.viewport.getCenter();
+
+      logStatus("Enviando comando para criar item...");
       await OBR.scene.items.addItems([
         {
           id: `ponto_interesse_${Date.now()}`,
@@ -28,7 +47,7 @@ OBR.onReady(() => {
           locked: false,
           name: "Novo Ponto de Interesse",
           image: {
-            url: iconUrl,
+            url: `${BASE_URL}/sparkle.webp`,
             mime: "image/webp",
             grid: { dpi: 150, offset: { x: 0, y: 0 } },
           },
@@ -43,9 +62,9 @@ OBR.onReady(() => {
         }
       ]);
 
-      console.log("Ponto criado com sucesso!");
+      logStatus("Ponto criado com sucesso na cena!");
     } catch (error) {
-      console.error("Erro ao criar ponto de interesse:", error);
+      logStatus(`Erro: ${error.message || error}`, true);
     }
   });
 });
