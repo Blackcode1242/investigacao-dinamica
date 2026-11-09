@@ -1,0 +1,16 @@
+{
+  "name": "Pontos de Interesse",
+  "version": "1.0.0",
+  "manifest_version": 1,
+  "description": "Pontos de interesse com brilho no mapa, perícias, DTs e pistas para investigação.",
+  "author": "Você",
+  "icon": "icon.svg",
+  "action": {
+    "title": "Pontos de Interesse",
+    "icon": "icon.svg",
+    "popover": "index.html",
+    "width": 340,
+    "height": 520
+  },
+  "background_url": "background.html"
+}
