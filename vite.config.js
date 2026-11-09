@@ -15,7 +15,6 @@ export default defineConfig({
       input: {
         main: p("./index.html"),
         popover: p("./popover.html"),
-        background: p("./background.html"),
       },
     },
   },
