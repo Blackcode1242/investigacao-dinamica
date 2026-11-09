@@ -65,7 +65,8 @@ OBR.onReady(() => {
 
       logStatus("Ponto criado com sucesso na cena!");
     } catch (error) {
-      logStatus(`Erro: ${error.message || error}`, true);
+      const errorMsg = error instanceof Error ? error.message : (typeof error === "object" ? JSON.stringify(error) : String(error));
+      logStatus(`Erro: ${errorMsg}`, true);
     }
   });
 });
