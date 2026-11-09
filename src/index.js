@@ -34,11 +34,8 @@ OBR.onReady(() => {
       }
 
       logStatus("Obtendo centro da tela...");
-      const bounds = await OBR.viewport.getBounds();
-      const viewport = {
-        x: (bounds.min.x + bounds.max.x) / 2,
-        y: (bounds.min.y + bounds.max.y) / 2
-      };
+      // CORREÇÃO: Utilizando OBR.viewport.getPosition() para obter o centro exato da câmara
+      const viewport = await OBR.viewport.getPosition();
 
       logStatus("Enviando comando para criar item...");
       await OBR.scene.items.addItems([
