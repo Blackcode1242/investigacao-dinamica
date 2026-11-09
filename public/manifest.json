@@ -3,14 +3,14 @@
   "version": "1.0.0",
   "manifest_version": 1,
   "description": "Pontos de interesse com brilho no mapa, perícias, DTs e pistas para investigação.",
-  "author": "Você",
+  "author": "Blackcode1242",
   "icon": "icon.svg",
   "action": {
     "title": "Pontos de Interesse",
-    "icon": "icon.svg",
-    "popover": "index.html",
+    "icon": "https://Blackcode1242.github.io/investigacao-dinamica/icon.svg",
+    "popover": "https://Blackcode1242.github.io/investigacao-dinamica/index.html",
     "width": 340,
     "height": 520
   },
-  "background_url": "background.html"
+  "background_url": "https://Blackcode1242.github.io/investigacao-dinamica/background.html"
 }
