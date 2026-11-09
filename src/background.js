@@ -7,6 +7,7 @@ import {
 /* Mestre: mantém o selo de pedidos e o caderno de pistas em dia */
 let rodando = false;
 let refazer = false;
+
 async function manter() {
   if (rodando) {
     refazer = true;
@@ -48,50 +49,10 @@ async function manter() {
 OBR.onReady(async () => {
   const role = await OBR.player.getRole();
 
-  // Ferramenta de criação de ponto por clique no mapa
-  OBR.tool.create({
-    id: `${NS}/ferramenta-criar-ponto`,
-    icons: [
-      {
-        icon: `${BASE}open.svg`,
-        label: "Criar Ponto de Interesse",
-      },
-    ],
-    async onClick(context, event) {
-      if ((await OBR.player.getRole()) !== "GM") return;
-      
-      const { x, y } = event.pointerPosition;
+  // ⚠️ OBR.tool.create FOI REMOVIDO DAQUI.
+  // A criação de pontos agora é feita pelo botão dentro do painel (index.js).
 
-      await OBR.scene.items.addItems([
-        {
-          id: `ponto_interesse_${Date.now()}`,
-          type: "IMAGE",
-          layer: "ATTACHMENT",
-          position: { x, y },
-          scale: { x: 1, y: 1 },
-          rotation: 0,
-          visible: true,
-          locked: false,
-          name: "Novo Ponto de Interesse",
-          image: {
-            url: `${BASE}sparkle.webp`,
-            mime: "image/webp",
-            grid: { dpi: 150, offset: { x: 0, y: 0 } },
-          },
-          metadata: {
-            [KEY]: {
-              titulo: "Novo Ponto",
-              descricao: "",
-              notaMestre: "",
-              pericias: []
-            }
-          }
-        }
-      ]);
-    },
-  });
-
-  // 1) Menu dos "três pontinhos" do item
+  // 1) Menu dos "três pontinhos" do item (clique direito)
   OBR.contextMenu.create({
     id: `${NS}/abrir`,
     icons: [
@@ -106,7 +67,7 @@ OBR.onReady(async () => {
     },
   });
 
-  // 2) Jogador: selecionar o brilho abre o ponto automaticamente
+  // 2) Jogador: selecionar o brilho no mapa abre o ponto automaticamente
   let aberto = null;
   OBR.player.onChange(async (player) => {
     if (player.role === "GM") return;
