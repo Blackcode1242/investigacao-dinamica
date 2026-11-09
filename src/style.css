@@ -1,41 +1,98 @@
-:root { --bg:#222639; --fg:#fff; --fg2:#aab; --pri:#bb99ff; --line:rgba(255,255,255,.16); --card:rgba(255,255,255,.06); }
-* { box-sizing: border-box; }
-body { margin:0; padding:12px; background:var(--bg); color:var(--fg); font:14px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif; }
-h1 { font-size:16px; margin:0 0 8px; }
-h2 { font-size:12px; text-transform:uppercase; letter-spacing:.05em; color:var(--fg2); margin:16px 0 6px; }
-p { margin:6px 0; }
-.muted { color:var(--fg2); font-weight:normal; font-size:12px; }
-.topo { display:flex; justify-content:space-between; align-items:flex-start; gap:8px; }
-label { display:block; margin:10px 0 0; font-weight:600; font-size:12px; }
-input, textarea, select { width:100%; margin-top:4px; padding:6px 8px; color:var(--fg); background:var(--card); border:1px solid var(--line); border-radius:6px; font:inherit; }
-textarea { resize:vertical; }
-button { padding:6px 10px; color:var(--fg); background:var(--card); border:1px solid var(--line); border-radius:6px; font:inherit; cursor:pointer; }
-button:hover { border-color:var(--pri); }
-button:disabled { opacity:.6; cursor:default; }
-button.primario { width:100%; background:var(--pri); color:#111; border-color:var(--pri); font-weight:700; padding:9px; }
-button.perigo { color:#ff7a7a; }
-button.x { padding:2px 8px; line-height:1.2; flex:none; }
-.card { margin:8px 0; padding:8px; background:var(--card); border:1px solid var(--line); border-radius:8px; }
-.card.ok { border-color:var(--pri); }
-.card textarea { margin-top:6px; }
-.linha { display:flex; align-items:center; justify-content:space-between; gap:8px; }
-.linha input[list] { flex:1; margin:0; }
-.acoes { margin-top:6px; justify-content:flex-start; }
-.dt { display:flex; align-items:center; gap:4px; margin:0; white-space:nowrap; }
-.dt input { width:56px; margin:0; }
-.check { display:flex; align-items:center; gap:6px; font-weight:normal; margin-top:6px; }
-.check input { width:auto; margin:0; }
-.tag { font-size:11px; padding:2px 8px; border-radius:99px; border:1px solid var(--line); color:var(--fg2); }
-.tag.on { color:var(--pri); border-color:var(--pri); }
-.pista { margin-top:8px; padding:8px; border-left:3px solid var(--pri); background:var(--card); border-radius:4px; }
-.rodape { display:flex; flex-direction:column; gap:6px; margin-top:16px; padding-top:12px; border-top:1px solid var(--line); }
-.abas { display:flex; gap:6px; margin-bottom:8px; }
-.abas button { flex:1; }
-button.ativa { border-color:var(--pri); color:var(--pri); font-weight:700; }
-button.sim { border-color:#4caf50; color:#4caf50; }
-button.nao { border-color:#ff7a7a; color:#ff7a7a; }
-.tag.bad { color:#ff7a7a; border-color:#ff7a7a; }
-.banner { margin:8px 0; padding:8px; border:1px dashed var(--pri); border-radius:6px; font-size:12px; color:var(--pri); }
-.banner button { margin-top:6px; }
-details summary { cursor:pointer; font-size:12px; color:var(--fg2); margin-top:8px; }
-.ligado { margin-top:4px; }
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  color-scheme: dark;
+  background-color: #1a1a1e;
+  color: #f0f0f5;
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: transparent;
+}
+
+/* Painéis flutuantes arrastáveis */
+.draggable-panel {
+  position: absolute;
+  background: #222229;
+  border: 1px solid #3a3a45;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  user-select: none;
+}
+
+.panel-header {
+  padding: 10px 14px;
+  background: #2b2b36;
+  cursor: grab;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #3a3a45;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.panel-header:active {
+  cursor: grabbing;
+}
+
+.panel-body {
+  padding: 12px;
+  overflow-y: auto;
+  max-height: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Campos e Botões */
+input, textarea, select {
+  background: #151518;
+  border: 1px solid #3a3a45;
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 13px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+input:focus, textarea:focus, select:focus {
+  border-color: #6366f1;
+  outline: none;
+}
+
+button {
+  background: #3b3b4f;
+  border: none;
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+
+button:hover {
+  background: #4f4f6b;
+}
+
+button.primary {
+  background: #6366f1;
+}
+
+button.primary:hover {
+  background: #4f46e5;
+}
+
+.row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
