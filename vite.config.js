@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url";
 const p = (f) => fileURLToPath(new URL(f, import.meta.url));
 
 export default defineConfig({
-  base: "./",
+  base: "/investigacao-dinamica/",
   server: {
     port: 5173,
     // O Owlbear precisa de CORS liberado para ler o manifest
