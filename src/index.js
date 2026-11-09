@@ -1,48 +1,76 @@
 import OBR from "@owlbear-rodeo/sdk";
 import "./style.css";
 
+const BASE_URL = "https://blackcode1242.github.io/investigacao-dinamica";
+
 OBR.onReady(() => {
-  console.log("Extensão Investigação Dinâmica carregada com sucesso.");
+  const app = document.getElementById("app");
+  if (!app) return;
 
-  // Função auxiliar para tornar painéis arrastáveis pela barra de título
-  function makeDraggable(panelElement, handleElement) {
-    let isDragging = false;
-    let startX, startY, initialX, initialY;
+  app.innerHTML = `
+    <div style="padding: 12px; display: flex; flex-direction: column; gap: 8px;">
+      <h3 style="margin: 0 0 2px 0; font-size: 15px;">Investigação Dinâmica</h3>
+      <button class="primary" id="create-point" style="padding: 8px; cursor: pointer;">Criar Ponto no Centro</button>
+      <div id="status-log" style="font-size: 11px; color: #a1a1aa; word-break: break-all; margin-top: 4px;">Status: Aguardando ação...</div>
+    </div>
+  `;
 
-    handleElement.addEventListener("mousedown", (e) => {
-      isDragging = true;
-      startX = e.clientX;
-      startY = e.clientY;
-      
-      const rect = panelElement.getBoundingClientRect();
-      initialX = rect.left;
-      initialY = rect.top;
-
-      panelElement.style.position = "absolute";
-      panelElement.style.left = `${initialX}px`;
-      panelElement.style.top = `${initialY}px`;
-      panelElement.style.right = "auto";
-      panelElement.style.bottom = "auto";
-
-      document.addEventListener("mousemove", onMouseMove);
-      document.addEventListener("mouseup", onMouseUp);
-    });
-
-    function onMouseMove(e) {
-      if (!isDragging) return;
-      const dx = e.clientX - startX;
-      const dy = e.clientY - startY;
-      panelElement.style.left = `${initialX + dx}px`;
-      panelElement.style.top = `${initialY + dy}px`;
+  const logStatus = (message, isError = false) => {
+    const logEl = document.getElementById("status-log");
+    if (logEl) {
+      logEl.style.color = isError ? "#f87171" : "#4ade80";
+      logEl.textContent = message;
     }
+    console.log(message);
+  };
 
-    function onMouseUp() {
-      isDragging = false;
-      document.removeEventListener("mousemove", onMouseMove);
-      document.removeEventListener("mouseup", onMouseUp);
+  document.getElementById("create-point").addEventListener("click", async () => {
+    try {
+      logStatus("Verificando se a cena está pronta...");
+
+      const sceneReady = await OBR.scene.isReady();
+      if (!sceneReady) {
+        throw new Error("A cena do Owlbear Rodeo não está pronta. Abra um mapa ativo.");
+      }
+
+      logStatus("Obtendo centro da tela...");
+      const bounds = await OBR.viewport.getBounds();
+      const viewport = {
+        x: (bounds.min.x + bounds.max.x) / 2,
+        y: (bounds.min.y + bounds.max.y) / 2
+      };
+
+      logStatus("Enviando comando para criar item...");
+      await OBR.scene.items.addItems([
+        {
+          id: `ponto_interesse_${Date.now()}`,
+          type: "IMAGE",
+          layer: "ATTACHMENT",
+          position: { x: viewport.x, y: viewport.y },
+          scale: { x: 1, y: 1 },
+          rotation: 0,
+          visible: true,
+          locked: false,
+          name: "Novo Ponto de Interesse",
+          image: {
+            url: `${BASE_URL}/sparkle.webp`,
+            mime: "image/webp",
+            grid: { dpi: 150, offset: { x: 0, y: 0 } },
+          },
+          metadata: {
+            "investigacao/metadata": {
+              titulo: "Novo Ponto",
+              descricao: "",
+              notaMestre: "",
+              pericias: []
+            }
+          }
+        }
+      ]);
+
+      logStatus("Ponto criado com sucesso na cena!");
+    } catch (error) {
+      logStatus(`Erro: ${error.message || error}`, true);
     }
-  }
-
-  // Disponibiliza a função globalmente se necessário para os elementos injetados
-  window.makeDraggable = makeDraggable;
+  });
 });
