@@ -1,7 +1,7 @@
 {
   "name": "Investigação Dinâmica",
   "version": "1.1.0",
-  "manifest_version": 1,
+  "manifest_version": 2,
   "description": "Sistema dinâmico de pontos de interesse, pistas e investigação para Owlbear Rodeo.",
   "icon": "https://blackcode1242.github.io/investigacao-dinamica/icon.svg",
   "action": {
