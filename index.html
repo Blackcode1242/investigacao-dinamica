@@ -1,5 +1,74 @@
-<!doctype html>
-<html lang="pt-BR">
-<head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title>Pontos de Interesse</title></head>
-<body><div id="app"></div><script type="module" src="/src/index.js"></script></body>
-</html>
+import OBR from "@owlbear-rodeo/sdk";
+import "./style.css";
+// Importe o KEY correto para o background reconhecer o item!
+import { KEY } from "./shared.js"; 
+
+const BASE_URL = "https://blackcode1242.github.io/investigacao-dinamica";
+
+OBR.onReady(() => {
+  const app = document.getElementById("app");
+  if (!app) return;
+
+  app.innerHTML = `
+    <div style="padding: 16px; display: flex; flex-direction: column; gap: 12px; font-family: sans-serif;">
+      <h3 style="margin: 0; font-size: 16px;">Investigação Dinâmica</h3>
+      <button class="primary" id="create-center" style="padding: 10px; background: #6366f1; color: white; border: none; border-radius: 6px; cursor: pointer;">
+        ➕ Criar Ponto no Centro da Tela
+      </button>
+      <div id="status-log" style="font-size: 12px; color: #a1a1aa;">Aguardando ação...</div>
+    </div>
+  `;
+
+  const log = (msg, err = false) => {
+    const el = document.getElementById("status-log");
+    if (el) { el.textContent = msg; el.style.color = err ? "#f87171" : "#4ade80"; }
+  };
+
+  document.getElementById("create-center").addEventListener("click", async () => {
+    try {
+      log("Verificando cena...");
+      if (!(await OBR.scene.isReady())) throw new Error("Nenhum mapa ativo.");
+
+      log("Calculando centro...");
+      // Pega o tamanho da tela (viewport)
+      const [width, height] = await Promise.all([
+        OBR.viewport.getWidth(),
+        OBR.viewport.getHeight()
+      ]);
+
+      // Converte o centro da tela (pixels) para o mapa (coordenadas)
+      const centroNaTela = { x: width / 2, y: height / 2 };
+      const centroNoMapa = await OBR.viewport.inverseTransformPoint(centroNaTela);
+
+      log("Criando ponto...");
+      await OBR.scene.items.addItems([{
+        id: `ponto_interesse_${Date.now()}`,
+        type: "IMAGE",
+        layer: "ATTACHMENT",
+        position: { x: centroNoMapa.x, y: centroNoMapa.y },
+        scale: { x: 1, y: 1 },
+        rotation: 0,
+        visible: true,
+        locked: false,
+        name: "Novo Ponto de Interesse",
+        image: {
+          url: `${BASE_URL}/sparkle.webp`,
+          mime: "image/webp",
+          grid: { dpi: 150, offset: { x: 0, y: 0 } },
+        },
+        metadata: {
+          [KEY]: { // Usa a constante importada para não haver erro de digitação
+            titulo: "Novo Ponto",
+            descricao: "",
+            notaMestre: "",
+            pericias: []
+          }
+        }
+      }]);
+
+      log("✅ Ponto criado com sucesso!");
+    } catch (err) {
+      log(`❌ Erro: ${err.message}`, true);
+    }
+  });
+});
