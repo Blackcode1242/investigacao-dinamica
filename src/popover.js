@@ -1,6 +1,8 @@
 import OBR from "@owlbear-rodeo/sdk";
 import "./style.css";
 
+const BASE_URL = "https://blackcode1242.github.io/investigacao-dinamica";
+
 OBR.onReady(() => {
   document.getElementById("app").innerHTML = `
     <div style="padding: 12px; display: flex; flex-direction: column; gap: 10px;">
@@ -11,10 +13,9 @@ OBR.onReady(() => {
 
   document.getElementById("create-point").addEventListener("click", async () => {
     try {
-      // 1. Pega o centro da viewport atual do jogador/mestre
       const viewport = await OBR.viewport.getCenter();
+      const iconUrl = `${BASE_URL}/sparkle.webp`;
 
-      // 2. Cria o item de marcador no mapa na posição central
       await OBR.scene.items.addItems([
         {
           id: `ponto_interesse_${Date.now()}`,
@@ -27,7 +28,7 @@ OBR.onReady(() => {
           locked: false,
           name: "Novo Ponto de Interesse",
           image: {
-            url: "/sparkle.webp", // Ícone brilhante padrão da extensão
+            url: iconUrl,
             mime: "image/webp",
             grid: { dpi: 150, offset: { x: 0, y: 0 } },
           },
@@ -42,7 +43,7 @@ OBR.onReady(() => {
         }
       ]);
 
-      console.log("Ponto criado com sucesso no centro da tela!");
+      console.log("Ponto criado com sucesso!");
     } catch (error) {
       console.error("Erro ao criar ponto de interesse:", error);
     }
