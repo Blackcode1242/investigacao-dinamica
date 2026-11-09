@@ -1,20 +1,28 @@
 import OBR from "@owlbear-rodeo/sdk";
 import "./style.css";
+// Importamos as constantes oficiais do shared.js para garantir que o background reconheça o item
+import { KEY } from "./shared.js";
 
-// Idealmente, importe do seu shared.js em vez de reescrever:
-// import { BASE, KEY } from "./shared.js";
+// URL base onde a extensão está hospedada
 const BASE_URL = "https://blackcode1242.github.io/investigacao-dinamica";
-const KEY = "com.coruja.pontos-de-interesse/poi"; // Mesma chave do seu shared.js
 
 OBR.onReady(() => {
   const app = document.getElementById("app");
   if (!app) return;
 
+  // Renderiza a interface do painel lateral
   app.innerHTML = `
-    <div style="padding: 12px; display: flex; flex-direction: column; gap: 8px;">
-      <h3 style="margin: 0 0 2px 0; font-size: 15px;">Investigação Dinâmica</h3>
-      <button class="primary" id="create-point" style="padding: 8px; cursor: pointer;">Criar Ponto no Centro</button>
-      <div id="status-log" style="font-size: 11px; color: #a1a1aa; word-break: break-all; margin-top: 4px;">Status: Aguardando ação...</div>
+    <div style="padding: 16px; display: flex; flex-direction: column; gap: 12px; font-family: Inter, system-ui, sans-serif;">
+      <h3 style="margin: 0 0 4px 0; font-size: 16px; color: #f0f0f5;">Investigação Dinâmica</h3>
+      <p style="font-size: 12px; color: #a1a1aa; margin: 0 0 8px 0;">Posicione o mapa onde deseja e clique no botão para criar um novo Ponto de Interesse.</p>
+      
+      <button class="primary" id="create-point" style="padding: 10px; background: #6366f1; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; transition: background 0.2s;">
+        ➕ Criar Ponto no Centro da Tela
+      </button>
+      
+      <div id="status-log" style="font-size: 11px; color: #a1a1aa; margin-top: 8px; word-break: break-word;">
+        Status: Aguardando ação...
+      </div>
     </div>
   `;
 
@@ -27,7 +35,6 @@ OBR.onReady(() => {
     console.log(message);
   };
 
-  // O addEventListener agora está devidamente DENTRO do onReady
   document.getElementById("create-point").addEventListener("click", async () => {
     try {
       logStatus("Verificando se a cena está pronta...");
@@ -48,42 +55,43 @@ OBR.onReady(() => {
       // 2. Calcula o centro da tela em pixels
       const screenCenter = { x: width / 2, y: height / 2 };
 
-      // 3. Converte o centro da tela para coordenadas do mapa
+      // 3. Converte o centro da tela para as coordenadas reais do mapa
       const worldCenter = await OBR.viewport.inverseTransformPoint(screenCenter);
 
-      logStatus("Enviando comando para criar item...");
+      logStatus("Criando ponto de interesse...");
       
+      // 4. Adiciona o item no mapa
       await OBR.scene.items.addItems([
         {
           id: `ponto_interesse_${Date.now()}`,
           type: "IMAGE",
           layer: "ATTACHMENT",
-          position: { x: worldCenter.x, y: worldCenter.y }, // Posição corrigida
+          position: { x: worldCenter.x, y: worldCenter.y }, // Posição calculada
           scale: { x: 1, y: 1 },
           rotation: 0,
           visible: true,
           locked: false,
           name: "Novo Ponto de Interesse",
           image: {
-            url: `${BASE_URL}/sparkle.webp`,
+            url: `${BASE_URL}/sparkle.webp`, // Certifique-se de que esta imagem existe no seu GitHub Pages
             mime: "image/webp",
             grid: { dpi: 150, offset: { x: 0, y: 0 } },
           },
           metadata: {
-            // Usando a chave correta para que o background.js reconheça o item
+            // Usa a chave importada para que o background.js e o popover.js reconheçam o item
             [KEY]: {
               titulo: "Novo Ponto",
               descricao: "",
               notaMestre: "",
-              pericias: []
+              pericias: [] // Aqui você pode colocar uma perícia padrão se quiser, usando a função novaPericia() do shared.js
             }
           }
         }
       ]);
 
-      logStatus("Ponto criado com sucesso na cena!");
+      logStatus("✅ Ponto criado com sucesso na cena!");
     } catch (error) {
-      logStatus(`Erro: ${error.message || error}`, true);
+      logStatus(`❌ Erro: ${error.message || error}`, true);
     }
   });
 });
