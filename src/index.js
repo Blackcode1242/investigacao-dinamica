@@ -24,50 +24,59 @@ OBR.onReady(() => {
     console.log(message);
   };
 
-  document.getElementById("create-point").addEventListener("click", async () => {
-    try {
-      logStatus("Verificando se a cena está pronta...");
+document.getElementById("create-point").addEventListener("click", async () => {
+  try {
+    logStatus("Verificando se a cena está pronta...");
 
-      const sceneReady = await OBR.scene.isReady();
-      if (!sceneReady) {
-        throw new Error("A cena do Owlbear Rodeo não está pronta. Abra um mapa ativo.");
-      }
+    const sceneReady = await OBR.scene.isReady();
+    if (!sceneReady) {
+      throw new Error("A cena do Owlbear Rodeo não está pronta. Abra um mapa ativo.");
+    }
 
-      logStatus("Obtendo centro da tela...");
-      // CORREÇÃO: Utilizando OBR.viewport.getPosition() para obter o centro exato da câmara
-      const viewport = await OBR.viewport.getPosition();
+    logStatus("Obtendo centro da tela...");
 
-      logStatus("Enviando comando para criar item...");
-      await OBR.scene.items.addItems([
-        {
-          id: `ponto_interesse_${Date.now()}`,
-          type: "IMAGE",
-          layer: "ATTACHMENT",
-          position: { x: viewport.x, y: viewport.y },
-          scale: { x: 1, y: 1 },
-          rotation: 0,
-          visible: true,
-          locked: false,
-          name: "Novo Ponto de Interesse",
-          image: {
-            url: `${BASE_URL}/sparkle.webp`,
-            mime: "image/webp",
-            grid: { dpi: 150, offset: { x: 0, y: 0 } },
-          },
-          metadata: {
-            "investigacao/metadata": {
-              titulo: "Novo Ponto",
-              descricao: "",
-              notaMestre: "",
-              pericias: []
-            }
+    // 1. Pega largura e altura da tela (viewport) em pixels
+    const [width, height] = await Promise.all([
+      OBR.viewport.getWidth(),
+      OBR.viewport.getHeight(),
+    ]);
+
+    // 2. Calcula o centro da tela em pixels
+    const screenCenter = { x: width / 2, y: height / 2 };
+
+    // 3. Converte o centro da tela para coordenadas do mapa
+    const worldCenter = await OBR.viewport.inverseTransformPoint(screenCenter);
+
+    logStatus("Enviando comando para criar item...");
+    await OBR.scene.items.addItems([
+      {
+        id: `ponto_interesse_${Date.now()}`,
+        type: "IMAGE",
+        layer: "ATTACHMENT",
+        position: { x: worldCenter.x, y: worldCenter.y }, // <-- Posição corrigida
+        scale: { x: 1, y: 1 },
+        rotation: 0,
+        visible: true,
+        locked: false,
+        name: "Novo Ponto de Interesse",
+        image: {
+          url: `${BASE_URL}/sparkle.webp`,
+          mime: "image/webp",
+          grid: { dpi: 150, offset: { x: 0, y: 0 } },
+        },
+        metadata: {
+          "investigacao/metadata": {
+            titulo: "Novo Ponto",
+            descricao: "",
+            notaMestre: "",
+            pericias: []
           }
         }
-      ]);
+      }
+    ]);
 
-      logStatus("Ponto criado com sucesso na cena!");
-    } catch (error) {
-      logStatus(`Erro: ${error.message || error}`, true);
-    }
-  });
+    logStatus("Ponto criado com sucesso na cena!");
+  } catch (error) {
+    logStatus(`Erro: ${error.message || error}`, true);
+  }
 });
