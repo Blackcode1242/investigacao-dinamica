@@ -5,6 +5,7 @@ const BASE_URL = "https://blackcode1242.github.io/investigacao-dinamica";
 
 OBR.onReady(() => {
   const app = document.getElementById("app");
+  if (!app) return;
   app.innerHTML = `
     <div style="padding: 12px; display: flex; flex-direction: column; gap: 8px;">
       <h3 style="margin: 0 0 2px 0; font-size: 15px;">Investigação Dinâmica</h3>
@@ -32,8 +33,8 @@ OBR.onReady(() => {
       }
 
       logStatus("Obtendo centro da tela...");
-      // CORREÇÃO: Usando OBR.viewport.getPosition() que é o método correto da SDK
-      const viewport = await OBR.viewport.getPosition();
+      // MÉTODO CORRETO DA SDK V2: OBR.viewport.getTransform() retorna x, y e scale do centro da câmara
+      const transform = await OBR.viewport.getTransform();
 
       logStatus("Enviando comando para criar item...");
       await OBR.scene.items.addItems([
@@ -41,7 +42,7 @@ OBR.onReady(() => {
           id: `ponto_interesse_${Date.now()}`,
           type: "IMAGE",
           layer: "ATTACHMENT",
-          position: { x: viewport.x, y: viewport.y },
+          position: { x: transform.x, y: transform.y },
           scale: { x: 1, y: 1 },
           rotation: 0,
           visible: true,
@@ -65,7 +66,7 @@ OBR.onReady(() => {
 
       logStatus("Ponto criado com sucesso na cena!");
     } catch (error) {
-      const errorMsg = error instanceof Error ? error.message : (typeof error === "object" ? JSON.stringify(error) : String(error));
+      const errorMsg = error instanceof Error ? error.message : String(error);
       logStatus(`Erro: ${errorMsg}`, true);
     }
   });
