@@ -1,36 +1,23 @@
-# Investigação Dinâmica - Manual de Utilização
+# Investigação Dinâmica
 
-Bem-vindo ao **Investigação Dinâmica**, uma extensão para o Owlbear Rodeo desenvolvida para enriquecer campanhas de RPG com pontos de interesse interativos, pistas ocultas, testes de perícia e controle dinâmico de cenas pelo Mestre.
-
----
-
-## 🧭 Como Instalar e Utilizar no VS Code (Desenvolvimento / Teste Local)
-
-Se você baixou os códigos e deseja rodar a extensão localmente usando o Visual Studio Code, siga o passo a passo abaixo:
-
-1. **Abra a pasta do projeto** no **VS Code**:
-   * Vá em `Arquivo` > `Abrir Pasta...` e selecione o diretório da extensão.
-2. **Abra o terminal integrado**:
-   * No menu superior, clique em `Terminal` > `Novo Terminal` (ou use o atalho `Ctrl + ~`).
-3. **Instale as dependências** (necessário apenas na primeira vez):
-   * Digite o comando abaixo e aperte Enter:
-     ```bash
-     npm install
-     ```
-4. **Inicie o servidor de desenvolvimento**:
-   * Execute o comando:
-     ```bash
-     npm run dev
-     ```
-   * O terminal exibirá um endereço local (geralmente `http://localhost:5173`).
-5. **Conecte ao Owlbear Rodeo**:
-   * Carregue a extensão no seu painel de extensões do Owlbear Rodeo apontando para a URL de desenvolvimento fornecida pelo Vite.
+Bem-vindo ao **Investigação Dinâmica**, uma extensão do Owlbear Rodeo para gerenciar exploração, pontos de interesse e pistas ocultas nas suas sessões de investigação e mistério.
+Esta extensão foi criada para ajudar o Mestre a dar vida aos cenários e recompensar a curiosidade dos jogadores. Com ela, você pode espalhar marcadores interativos pelo mapa que guardam segredos, testes de perícia e mistérios a serem desvendados.
 
 ---
 
-## 🛠️ Funções do Sistema
+## Como Utilizar
 
-* **Pontos de Interesse (Brilhos no Mapa)**: O Mestre ou os jogadores podem posicionar marcadores interativos pelo cenário.
-* **Caderno de Pistas**: Gerenciamento completo de o que os jogadores já descobriram ou deixaram passar.
-* **Painel do Mestre**: Permite configurar títulos, descrições visíveis aos jogadores, notas secretas exclusivas do Mestre, além de testes associados com marcação de Dificuldade (DT) e consequências automáticas ao passar ou falhar.
-* **Modo Jogador vs. Mestre**: Visualize instantaneamente o que os jogadores enxergam para evitar spoilers acidentais na mesa.
+### 1. Criando Pontos de Interesse (Para o Mestre)
+* Abra o painel da extensão na sua barra de ferramentas do Owlbear Rodeo.
+* Clique no botão para **criar um ponto no centro da tela**[cite: 2]. Um marcador brilhante aparecerá no mapa.
+* Arraste o brilho para o local exato que deseja destacar (uma porta secreta, uma estátua, um cadáver, etc.)[cite: 2]. *Nota: Ele nasce oculto dos jogadores[cite: 2].*
+
+### 2. Configurando o Ponto (Painel do Mestre)
+Ao clicar em um ponto de interesse, o painel de gerenciamento se abre permitindo que você defina:
+* **Título e Descrição**: O que os jogadores conseguem ver ou deduzir ao examinar o local.
+* **Notas do Mestre**: Informações secretas sobre o porquê daquele ponto importar para a história[cite: 2].
+* **Perícias e Pistas**: Defina testes necessários (como *Investigação* ou *Percepção*), a Dificuldade (DT) e o que acontece caso os jogadores descubram ou falhem na pista[cite: 2].
+
+### 3. O Ponto de Vista do Jogador
+* O Mestre pode alternar a visualização para o **modo jogador** a qualquer momento para conferir exatamente o que o grupo está enxergando no mapa[cite: 2], garantindo que nenhum spoiler seja revelado sem querer.
+* Os jogadores podem interagir com os pontos liberados para coletar pistas e registrar descobertas no **Caderno de Pistas**.
