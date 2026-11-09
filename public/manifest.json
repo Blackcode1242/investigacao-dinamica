@@ -4,7 +4,7 @@
   "manifest_version": 1,
   "description": "Pontos de interesse com brilho no mapa, perícias, DTs e pistas para investigação.",
   "author": "Blackcode1242",
-  "icon": "icon.svg",
+  "icon": "https://Blackcode1242.github.io/investigacao-dinamica/icon.svg",
   "action": {
     "title": "Pontos de Interesse",
     "icon": "https://Blackcode1242.github.io/investigacao-dinamica/icon.svg",
