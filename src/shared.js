@@ -1,7 +1,6 @@
-import OBR from "@owlbear-rodeo/sdk";
-import "./style.css";
+import OBR, { buildImage } from "@owlbear-rodeo/sdk";
 
-// Endereço da pasta onde a extensão está hospedada (funciona na raiz ou em subpasta, como no GitHub Pages)
+// Pasta onde a extensão está hospedada (funciona na raiz ou em subpasta, como no GitHub Pages)
 export const BASE = new URL("./", location.href).href;
 
 export const NS = "com.coruja.pontos-de-interesse";
@@ -21,6 +20,8 @@ export const PERICIAS = [
   "Sobrevivência", "Tática", "Tecnologia", "Vontade",
 ];
 
+/* ---------- Modelo de dados ---------- */
+
 export function novaPericia() {
   return {
     id: crypto.randomUUID(),
@@ -37,38 +38,107 @@ export function novoPonto() {
   return { titulo: "Novo ponto de interesse", descricao: "", notaMestre: "", pericias: [novaPericia()] };
 }
 
-export const esc = (s = "") =>
-  String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-export const nl = (s = "") => esc(s).replace(/\n/g, "<br>");
+/* ---------- Tema do Owlbear ---------- */
 
 function pintar(t) {
+  const dark = t.mode === "DARK";
   const r = document.documentElement.style;
   r.setProperty("--bg", t.background.paper);
   r.setProperty("--fg", t.text.primary);
   r.setProperty("--fg2", t.text.secondary);
   r.setProperty("--pri", t.primary.main);
-  r.setProperty("--line", t.mode === "DARK" ? "rgba(255,255,255,.16)" : "rgba(0,0,0,.18)");
-  r.setProperty("--card", t.mode === "DARK" ? "rgba(255,255,255,.06)" : "rgba(0,0,0,.05)");
+  r.setProperty("--line", dark ? "rgba(255,255,255,.14)" : "rgba(0,0,0,.16)");
+  r.setProperty("--card", dark ? "rgba(255,255,255,.05)" : "rgba(0,0,0,.04)");
+  r.setProperty("--card2", dark ? "rgba(255,255,255,.09)" : "rgba(0,0,0,.07)");
+  // Âmbar "lampião de detetive" como cor de destaque da extensão
+  r.setProperty("--acc", dark ? "#e8b04a" : "#a86a00");
+  r.setProperty("--acc-soft", dark ? "rgba(232,176,74,.14)" : "rgba(168,106,0,.12)");
+  r.setProperty("--acc-fg", dark ? "#1b1405" : "#ffffff");
+  r.setProperty("--ok", dark ? "#5fd48a" : "#15803d");
+  r.setProperty("--ok-soft", dark ? "rgba(95,212,138,.14)" : "rgba(21,128,61,.12)");
+  r.setProperty("--bad", dark ? "#f48a8a" : "#b91c1c");
+  r.setProperty("--bad-soft", dark ? "rgba(244,138,138,.14)" : "rgba(185,28,28,.10)");
+  r.setProperty("color-scheme", dark ? "dark" : "light");
 }
 export async function aplicarTema() {
   pintar(await OBR.theme.getTheme());
   OBR.theme.onChange(pintar);
 }
 
+/* ---------- Popover do ponto ---------- */
+
 export async function abrirPopover(itemId) {
   const role = await OBR.player.getRole();
   await OBR.popover.close(POPOVER_ID);
   await OBR.popover.open({
     id: POPOVER_ID,
-    url: `${BASE}popover.html?id=${encodeURIComponent(itemId)}`,
+    url: `${BASE}ponto.html?id=${encodeURIComponent(itemId)}`,
     width: 360,
-    height: role === "GM" ? 620 : 440,
+    height: role === "GM" ? 580 : 420,
     anchorElementId: itemId,
     anchorOrigin: { horizontal: "RIGHT", vertical: "CENTER" },
     transformOrigin: { horizontal: "LEFT", vertical: "CENTER" },
     disableClickAway: true,
   });
 }
+
+/* ---------- Criação e navegação ---------- */
+
+// O sparkle.webp tem 256×256; com dpi = 256 ele ocupa exatamente 1 quadrado do grid
+const SPARKLE = { width: 256, height: 256, dpi: 256 };
+
+/* Centro da tela em coordenadas da cena
+   (OBR.viewport não tem getBounds: usamos largura/altura + inverseTransformPoint) */
+export async function centroDaTela() {
+  const [w, h] = await Promise.all([OBR.viewport.getWidth(), OBR.viewport.getHeight()]);
+  return OBR.viewport.inverseTransformPoint({ x: w / 2, y: h / 2 });
+}
+
+/* Cria um ponto oculto no centro da tela e devolve o item */
+export async function criarPonto() {
+  if (!(await OBR.scene.isReady())) throw new Error("Abra uma cena para criar pontos.");
+  const centro = await centroDaTela();
+
+  const item = buildImage(
+    { url: `${BASE}sparkle.webp`, mime: "image/webp", width: SPARKLE.width, height: SPARKLE.height },
+    { dpi: SPARKLE.dpi, offset: { x: SPARKLE.width / 2, y: SPARKLE.height / 2 } }
+  )
+    .name("Ponto de interesse")
+    .position(centro)
+    .layer("ATTACHMENT")
+    .visible(false) // nasce oculto dos jogadores
+    .metadata({ [KEY]: novoPonto() })
+    .build();
+
+  await OBR.scene.items.addItems([item]);
+  return item;
+}
+
+/* Centraliza a câmera num item, mantendo o zoom atual */
+export async function focar(id) {
+  const [it] = await OBR.scene.items.getItems([id]);
+  if (!it) return;
+  const [w, h, scale, pos, tela] = await Promise.all([
+    OBR.viewport.getWidth(),
+    OBR.viewport.getHeight(),
+    OBR.viewport.getScale(),
+    OBR.viewport.getPosition(),
+    OBR.viewport.transformPoint(it.position),
+  ]);
+  await OBR.viewport.animateTo({
+    scale,
+    position: { x: pos.x + (w / 2 - tela.x), y: pos.y + (h / 2 - tela.y) },
+  });
+}
+
+/* Seleciona o ponto, leva a câmera até ele e abre o painel */
+export async function irParaPonto(id) {
+  await OBR.player.select([id]);
+  try { await focar(id); } catch {}
+  await abrirPopover(id);
+}
+
+/* ---------- Pedidos e resolução ---------- */
 
 /* Pedidos de teste ainda sem resposta (ignora os de perícias já resolvidas) */
 export function pedidosValidos(item) {

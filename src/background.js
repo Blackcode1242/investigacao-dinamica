@@ -7,7 +7,6 @@ import {
 /* Mestre: mantém o selo de pedidos e o caderno de pistas em dia */
 let rodando = false;
 let refazer = false;
-
 async function manter() {
   if (rodando) {
     refazer = true;
@@ -17,6 +16,7 @@ async function manter() {
   try {
     do {
       refazer = false;
+      if (!(await OBR.scene.isReady())) break;
       const pois = await OBR.scene.items.getItems((i) => KEY in i.metadata);
 
       const pendentes = pois.reduce((s, i) => s + pedidosValidos(i).length, 0);
@@ -49,17 +49,14 @@ async function manter() {
 OBR.onReady(async () => {
   const role = await OBR.player.getRole();
 
-  // ⚠️ OBR.tool.create FOI REMOVIDO DAQUI.
-  // A criação de pontos agora é feita pelo botão dentro do painel (index.js).
-
-  // 1) Menu dos "três pontinhos" do item (clique direito)
+  // 1) Menu dos "três pontinhos" do item
   OBR.contextMenu.create({
     id: `${NS}/abrir`,
     icons: [
       {
         icon: `${BASE}open.svg`,
         label: "Ponto de interesse",
-        filter: { every: [{ key: ["metadata", KEY], value: undefined, operator: "!=" }], max: 1 },
+        filter: { every: [{ key: ["metadata", KEY], value: undefined, operator: "!=" }], max: 1, roles: ["GM"] },
       },
     ],
     onClick(context) {
@@ -67,7 +64,7 @@ OBR.onReady(async () => {
     },
   });
 
-  // 2) Jogador: selecionar o brilho no mapa abre o ponto automaticamente
+  // 2) Jogador: selecionar o brilho abre o ponto automaticamente
   let aberto = null;
   OBR.player.onChange(async (player) => {
     if (player.role === "GM") return;
@@ -91,7 +88,8 @@ OBR.onReady(async () => {
   // 3) Mestre: guarda os pedidos de teste dos jogadores no próprio ponto
   OBR.broadcast.onMessage(CHANNEL, async (evento) => {
     if ((await OBR.player.getRole()) !== "GM") return;
-    const { itemId, periciaId, jogador } = evento.data;
+    const { itemId, periciaId, jogador } = evento.data ?? {};
+    if (!itemId || !periciaId || !jogador) return;
     const [it] = await OBR.scene.items.getItems([itemId]);
     const d = it?.metadata[KEY];
     const p = d?.pericias.find((x) => x.id === periciaId);
